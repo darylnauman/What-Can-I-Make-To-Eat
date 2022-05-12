@@ -3,8 +3,8 @@ package com.ex.recipeapi.entities;
 import lombok.*;
 import javax.persistence.*;
 
-@Table
 @Entity
+@Table(name= "DailyRecipeTracker")
 @Getter
 @Setter
 @ToString
@@ -15,6 +15,7 @@ public class DailyRecipeTracker {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="trackerId", columnDefinition = "AUTO_INCREMENT")
     private int trackerId;
 
     private String email;
