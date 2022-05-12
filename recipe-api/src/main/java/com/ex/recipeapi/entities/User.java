@@ -4,7 +4,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table
+@Table(name= "User")
 @Getter
 @Setter
 @ToString
@@ -15,11 +15,11 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="userId", columnDefinition = "AUTO_INCREMENT")
     private int userId;
 
     private String email;
     private String userPassword;
-    private int isLoggedIn;
-    private int subscriptionStatus;
-
+    private int subscriptionStatus = 0;
+    private int isLoggedIn = 0;
 }
