@@ -14,9 +14,8 @@ import java.io.IOException;
 @RequestMapping("/email")
 public class Controllers {
     EmailService emailService = new EmailServiceImpl();
-    @GetMapping(path = "sendEmail/{emailId}/{message}")
-    public String sendEmail(@PathVariable("emailId") String emailId, @PathVariable String message) throws MessagingException, IOException {
-        emailService.sendmail(emailId, message);
-        return "Email sent successfully";
+    @GetMapping(path = "sendEmail/{email}/{recipeId}")
+    public String sendEmail(@PathVariable("email") String email, @PathVariable("recipeId") int recipeId) throws MessagingException, IOException {
+        return (emailService.sendmail(email, recipeId));
     }
 }

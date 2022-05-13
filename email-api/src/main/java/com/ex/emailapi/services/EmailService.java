@@ -5,6 +5,6 @@ import javax.mail.internet.AddressException;
 import java.io.IOException;
 
 public interface EmailService {
-    void sendmail(String emailId, String message) throws AddressException, MessagingException, IOException;
+    String sendmail(String email, int recipeId) throws AddressException, MessagingException, IOException;
 
 }
