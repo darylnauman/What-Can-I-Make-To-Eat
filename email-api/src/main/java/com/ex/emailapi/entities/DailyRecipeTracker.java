@@ -5,20 +5,20 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name= "Subscription")
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name= "DailyRecipeTracker")
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Subscription {
+@NoArgsConstructor
+@AllArgsConstructor
+public class DailyRecipeTracker {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int subscriptionId;
+    @Column(name="trackerId", columnDefinition = "AUTO_INCREMENT")
+    private int trackerId;
 
     private String email;
-    private String preferences;
-
+    private int recipeId;
 }

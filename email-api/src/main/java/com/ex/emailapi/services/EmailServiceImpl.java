@@ -7,13 +7,37 @@ import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class EmailServiceImpl implements EmailService{
     @Override
-    public void sendmail(String emailId, String message) throws AddressException, MessagingException, IOException {
-        if(emailId == null || message == null){
+    public String sendmail(String email, int recipeId) throws AddressException, MessagingException, IOException {
+        if(email == null || recipeId == 0){
             throw new IllegalStateException("Email id and message can't be null");
         }
+
+        // Host url
+        String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/479101/information";
+        String charset = "application/json";
+        // Headers for a request
+        String x_rapidapi_host = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
+        String x_rapidapi_key = "46c9581dbcmsh496a852afc52dadp18d0c6jsn88d3b880b345";
+        HttpResponse <JsonNode> response = null;
+        try {
+            response = Unirest.get(host)
+                    .header("x-rapidapi-host", x_rapidapi_host)
+                    .header("x-rapidapi-key", x_rapidapi_key)
+                    .asJson();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        System.out.println(response.getBody().getObject().getInt("id"));
+        System.out.println(response.getBody().getObject().getString("title"));
+        String message=(response.getBody().getObject().getString("instructions"));
+
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -29,10 +53,12 @@ public class EmailServiceImpl implements EmailService{
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress("AneeshRevatureProject1@gmail.com", false));
 
-        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailId));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         msg.setSubject("Reimbursement email");
         msg.setContent(message, "text/html");
         msg.setSentDate(new Date());
         Transport.send(msg);
+
+        return (response.getBody().toString());
     }
 }
