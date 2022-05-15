@@ -1,9 +1,39 @@
 pipeline {
   agent any
   stages {
-    stage('Test') {
-      steps {
-        sh 'echo "Hello, World"'
+    stage('Quality Gate') {
+      steps {     
+      }
+    }
+    stage('Unit Testing') {
+      when {
+            anyOf {branch 'ft_*'; branch 'bg_*'}
+        }
+        steps {
+            withMaven {
+                sh 'mvn test'
+            }
+        }
+      }
+    }
+    stage('Build') {
+      steps {     
+      }
+    }
+    stage('Docker Image') {
+      steps {     
+      }
+    }
+    stage('Docker Deliver') {
+      steps {     
+      }
+    }
+    stage('Wait for approval') {
+      steps {     
+      }
+    }
+    stage('Deploy') {
+      steps {     
       }
     }
 
