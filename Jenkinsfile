@@ -12,10 +12,12 @@ pipeline {
         }
         steps {
             withMaven {
+                sh 'cd recipe-api'
+                sh 'mvn test'
+                sh 'cd ../email-api'
                 sh 'mvn test'
             }
         }
-      }
     }
     stage('Build') {
       steps {
@@ -43,3 +45,4 @@ pipeline {
       }
     }
   }
+}
