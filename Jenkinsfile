@@ -1,4 +1,9 @@
 pipeline {
+  environment {
+      registry = 'darylnauman/project2'
+      dockerHubCreds = 'docker_hub'
+      dockerImage = ''
+  }
   agent any
   stages {
     stage('Quality Gate') {
@@ -9,21 +14,19 @@ pipeline {
     stage('Unit Testing') {
       when {
             // anyOf {branch 'ft_*'; branch 'bg_*'}
-            branch 'do_not_run'
+            branch 'ft_jenkins'
         }
         steps {
             withMaven {
-                sh 'cd recipe-api'
-                sh 'mvn test'
-                sh 'cd ../email-api'
                 sh 'mvn test'
             }
-            junit skipPublishingChecks: true, testResults: 'target/surefire-reports/*.xml'
+            // junit skipPublishingChecks: true, testResults: 'target/surefire-reports/*.xml'
         }
     }
     stage('Build') {
       when {
-          branch 'main'
+          // branch 'main'
+          branch 'ft_jenkins'
       }
       steps{
           withMaven {
@@ -33,19 +36,53 @@ pipeline {
 
     }
     stage('Docker Image') {
-      steps {
-          echo 'Docker Image'
+      when {
+          // branch 'main'
+          branch 'ft_jenkins'
       }
+      steps{
+          script {
+            echo "$registry:$currentBuild.number"
+            dockerImage = docker.build "$registry:$currentBuild.number"
+          }
+      }
+
     }
     stage('Docker Deliver') {
-      steps {
-          echo 'Docker Deliver'     
+      when {
+        //   branch 'main'
+        branch 'ft_jenkins'
+      }
+      steps{
+          script{
+              docker.withRegistry("", dockerHubCreds) {
+                dockerImage.push("$currentBuild.number")
+                dockerImage.push("latest")
+              }
+          }
       }
     }
     stage('Wait for approval') {
-      steps {     
-          echo 'Wait for approval'
-      }
+        when {
+            // branch 'main'
+            branch 'ft_jenkins'
+        }
+        steps {
+            script {
+            try {
+                timeout(time: 20, unit: 'MINUTES') {
+                    approved = input message: 'Deploy to production?', ok: 'Continue',
+                        parameters: [choice(name: 'approved', choices: 'Yes\nNo', description: 'Deploy build to production')]
+
+                    if(approved != 'Yes') {
+                        error('Build did not pass approval')
+                    }
+                }
+            } catch(error) {
+                error('Build failed because timeout was exceeded');
+            }
+        }
+        }
     }
     stage('Deploy') {
       steps {
