@@ -27,7 +27,7 @@ pipeline {
       }
       steps{
           withMaven {
-              sh 'cd recipe-api'
+              sh 'cd /var/lib/jenkins/workspace/project-two_main/recipe-api'
               sh 'mvn package -DskipTests'
           }
       }
