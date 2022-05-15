@@ -132,10 +132,15 @@ public class EmailServiceImpl implements EmailService{
      *
      * @param emailAddressOfCurrentSubscriber This is the email address of the customer for whom a new recipe has to be emailed today
      * @param preferencesOfCurrentSubscriber This is the preference chosen by this customer for daily recipe suggestion
-     * @return Sends back recipe id of a new recipe which is not send before in the past week
+     * @return Sends back a recipe id of a new recipe which is not send the customer with the given email id in the past week
      */
     @Override
     public int getNewDailyRecipeForCurrentCustomer(String emailAddressOfCurrentSubscriber, String preferencesOfCurrentSubscriber) {
+        logger.debug("Starting the process to find a random recipe for the subscriber");
+        if (emailAddressOfCurrentSubscriber == null || preferencesOfCurrentSubscriber == null) {
+            throw new IllegalStateException("Employee id or preferences can't be null");
+        }
+
         List<DailyRecipeTracker> allRecipesSendToCurrentSubscriberPreviously = dailyRecipeTrackerRepository.findAllByEmail(emailAddressOfCurrentSubscriber);
         int totalNumberOfRecipesSendToCurrentSubscriberPreviously = allRecipesSendToCurrentSubscriberPreviously.size();
 
@@ -166,6 +171,7 @@ public class EmailServiceImpl implements EmailService{
             JSONObject obj = new JSONObject(jsonString);
             int generatedRecipeId = obj.getInt("id");//This is the id of the random generated recipe
             System.out.println("Generated id"+ generatedRecipeId);
+            logger.debug("Random recipe id is received from external API");
 
             //This loop make sure that the generated recipe was not send to customer within last 7 days
             for (int j = 1; j <= 7; j++) {
@@ -183,12 +189,15 @@ public class EmailServiceImpl implements EmailService{
 
             }
         }while (finalRecipeToBeSend == 0);
-
+        logger.debug("Random recipe id which is not send in the past week is received and is now returned");
         return finalRecipeToBeSend;
     }
 
 
-
+    /**
+     * This will send emails to all subscribers daily(for testing it i sending emails every 6 minutes) with a unique recipe,
+     * which depends on subscribers preference if he has chosen one or else a random recipe
+     */
     @Override
     @Scheduled(fixedRate = 360000)//This will send daily emails after every six minutes
     public void dailyEmailSender() {
