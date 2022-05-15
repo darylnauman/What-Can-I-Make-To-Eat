@@ -27,10 +27,11 @@ public class SubscriptionController {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello, World!";
-    }
+//   TODO Can remove as there is a HelloController file
+//     @GetMapping("/hello")
+//     public String hello() {
+//         return "Hello, World!";
+//     }
 
     @GetMapping("{recipeId}")
     public String getRecipeById(@PathVariable int recipeId) {
