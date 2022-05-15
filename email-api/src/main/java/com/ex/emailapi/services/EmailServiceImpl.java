@@ -45,6 +45,15 @@ public class EmailServiceImpl implements EmailService{
 
     final Logger logger = LoggerFactory.getLogger(EmailApiApplication.class);
 
+    public EmailServiceImpl(SubscriptionRepository subscriptionRepository, DailyRecipeTrackerRepository dailyRecipeTrackerRepository) {
+    this.subscriptionRepository = subscriptionRepository;
+    this.dailyRecipeTrackerRepository = dailyRecipeTrackerRepository;
+    }
+
+    public EmailServiceImpl() {
+
+    }
+
     @Override
     public String sendmail(String email, int recipeId) throws MessagingException{
         if(email == null || recipeId == 0){
@@ -181,7 +190,7 @@ public class EmailServiceImpl implements EmailService{
 
 
     @Override
-    @Scheduled(fixedRate = 150000)
+    @Scheduled(fixedRate = 300000)//This will send daily emails after every five minutes
     public void dailyEmailSender() {
         logger.debug("Daily email sender started");
 
