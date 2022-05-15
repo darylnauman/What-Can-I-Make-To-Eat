@@ -8,7 +8,7 @@ pipeline {
     }
     stage('Unit Testing') {
       when {
-            # anyOf {branch 'ft_*'; branch 'bg_*'}
+            // anyOf {branch 'ft_*'; branch 'bg_*'}
             branch 'do_not_run'
         }
         steps {
