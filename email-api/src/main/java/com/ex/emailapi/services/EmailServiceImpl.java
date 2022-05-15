@@ -190,7 +190,7 @@ public class EmailServiceImpl implements EmailService{
 
 
     @Override
-    @Scheduled(fixedRate = 300000)//This will send daily emails after every five minutes
+    @Scheduled(fixedRate = 360000)//This will send daily emails after every six minutes
     public void dailyEmailSender() {
         logger.debug("Daily email sender started");
 
