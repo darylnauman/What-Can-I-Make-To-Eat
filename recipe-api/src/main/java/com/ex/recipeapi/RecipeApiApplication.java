@@ -12,8 +12,8 @@ public class RecipeApiApplication {
 		SpringApplication.run(RecipeApiApplication.class, args);
 	}
 
-	@Bean
-	CommandLineRunner runner() {
-		return args -> System.out.println("Hello, World!");
-	}
+// 	@Bean
+// 	CommandLineRunner runner() {
+// 		return args -> System.out.println("Hello, World!");
+// 	}
 }
