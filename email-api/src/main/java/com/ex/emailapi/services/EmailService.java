@@ -6,5 +6,7 @@ import java.io.IOException;
 
 public interface EmailService {
     String sendmail(String email, int recipeId) throws AddressException, MessagingException, IOException;
+    int getNewDailyRecipeForCurrentCustomer(String emailAddressOfCurrentSubscriber, String preferencesOfCurrentSubscriber);
+    void dailyEmailSender();
 
 }
