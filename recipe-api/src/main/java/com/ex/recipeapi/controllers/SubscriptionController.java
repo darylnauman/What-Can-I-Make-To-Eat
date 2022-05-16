@@ -4,6 +4,7 @@ import com.ex.recipeapi.entities.Subscription;
 import com.ex.recipeapi.entities.User;
 import com.ex.recipeapi.repositories.SubscriptionRepository;
 import com.ex.recipeapi.repositories.UserRepository;
+import com.ex.recipeapi.services.SubscriptionService;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -27,44 +28,12 @@ public class SubscriptionController {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     @GetMapping("/hello")
     public String hello() {
         return "Hello, World!";
-    }
-
-    @GetMapping("{recipeId}")
-    public String getRecipeById(@PathVariable int recipeId) {
-
-        logger.info("SubscriptionController - getRecipeById");
-
-        // Host url
-        String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipeId + "/summary";
-        String charset = "application/json";
-
-        // Headers for a request
-        String x_rapidapi_host = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
-        String x_rapidapi_key = "9efff3fc99mshe7eb0f4e81c5bb6p1f9a9djsn3d0213e849d3";
-
-        HttpResponse<JsonNode> response = null;
-
-        try {
-            response = Unirest.get(host)
-                    .header("x-rapidapi-host", x_rapidapi_host)
-                    .header("x-rapidapi-key", x_rapidapi_key)
-                    .asJson();
-        } catch (UnirestException e) {
-            e.printStackTrace();
-        }
-
-        int id = (response.getBody().getObject().getInt("id"));
-        String title = (response.getBody().getObject().getString("title"));
-        String recipe = (response.getBody().getObject().getString("summary"));
-
-        String message = "<br>&emsp;<font size=\"5\" face=\"verdana\" color=\"purple\"><b> Recipe Title : " + title + "</b></font>"
-                + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"green\"><b> Recipe ID : " + id + "</b></font>"
-                + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"black\"><b> Recipe Instruction : </b>" + recipe + "</font>";
-
-        return (message);
     }
 
     @PostMapping("subscribe/{userId}")
@@ -91,6 +60,32 @@ public class SubscriptionController {
         } catch (Exception ex) {
             ex.printStackTrace();
             return "Error saving subscription request due to invalid User";
+        }
+    }
+
+    @DeleteMapping("unsubscribe/{userId}")
+    public String unsubscribeFromDailyEmail (@PathVariable int userId) {
+        try {
+            logger.info("SubscriptionController - unsubscribeFromDailyEmail");
+            User u = userRepository.findById(userId);
+            if (u.getIsLoggedIn() == 0) {
+                return "Please SIGN UP or LOG IN to unsubscribe from Daily Email";
+            }
+            if (u.getSubscriptionStatus() == 0) {
+                return "You have already unsubscribed from Daily Email!";
+            }
+            if (u.getSubscriptionStatus() == 1) {
+                u.setSubscriptionStatus(0);
+                String email = u.getEmail();
+                Subscription subscriber = subscriptionRepository.findByEmail(email);
+                subscriptionRepository.delete(subscriber);
+                return "You have successfully unsubscribed from Daily Email.";
+            } else {
+                return "Error deleting Subscription";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Exception occured while deleting Subscription";
         }
     }
 
@@ -126,16 +121,10 @@ public class SubscriptionController {
                 }
 
                 int id = (response.getBody().getObject().getInt("id"));
-                String title = (response.getBody().getObject().getString("title"));
-                String recipe = (response.getBody().getObject().getString("summary"));
-
-                String message = "<br>&emsp;<font size=\"5\" face=\"verdana\" color=\"purple\"><b> Recipe Title : " + title + "</b></font>"
-                        + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"green\"><b> Recipe ID : " + id + "</b></font>"
-                        + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"black\"><b> Recipe Instruction : </b>" + recipe + "</font>";
 
                 RestTemplate restTemplate = new RestTemplate();
 
-                String emailingAppUrl = "http://localhost:8080/email/sendEmail/" + emailAddress + "/" + message;
+                String emailingAppUrl = "http://localhost:8080/email/sendEmail/" + emailAddress + "/" + id;
                 ResponseEntity <String> emailResponse = restTemplate.getForEntity(emailingAppUrl, String.class);
 
                 return "Successfully sent email with this recipe!";
@@ -144,7 +133,53 @@ public class SubscriptionController {
             ex.printStackTrace();
             return "Error sending email, Please Log In again to verify Email Address";
         }
+    }
 
+    @GetMapping("{recipeId}")
+    public String getRecipeById(@PathVariable int recipeId) {
+
+        logger.info("SubscriptionController - getRecipeById");
+
+        // Host url
+        String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/" + recipeId + "/information";
+        String charset = "application/json";
+
+        // Headers for a request
+        String x_rapidapi_host = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
+        String x_rapidapi_key = "9efff3fc99mshe7eb0f4e81c5bb6p1f9a9djsn3d0213e849d3";
+
+        HttpResponse<JsonNode> response = null;
+
+        try {
+            response = Unirest.get(host)
+                    .header("x-rapidapi-host", x_rapidapi_host)
+                    .header("x-rapidapi-key", x_rapidapi_key)
+                    .asJson();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+
+        logger.info("recipe id : " + response.getBody().getObject().getInt("id"));
+        logger.info("recipe title : " + response.getBody().getObject().getString("title"));
+
+        String message=("<html><body>"
+                + "<br>&emsp;<font size=\"5\" face=\"verdana\" color=\"purple\"><b> Recipe Title : "
+                + response.getBody().getObject().getString("title") + "</b></font>"
+                + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"green\"><b> Recipe ID : "
+                + response.getBody().getObject().getInt("id") + "</b></font>"
+                + "<br><br>&emsp;<font size=\"2\" face=\"verdana\" color=\"black\"><b> Instructions : </b>"
+                + response.getBody().getObject().getString("instructions") + "</font>"
+                + "<br><br>&emsp;<img src=\'"+response.getBody().getObject().getString("image")+"\'/>"
+                + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"black\"><b> Servings : "
+                + response.getBody().getObject().getInt("servings") + "</b></font>"
+                + "<br><br>&emsp;<font size=\"3\" face=\"verdana\" color=\"black\"><b> Total Time : "
+                + response.getBody().getObject().getInt("readyInMinutes") + " " + " minutes</b></font>"
+                + "<br><br>&emsp;<font size=\"2\" face=\"verdana\" color=\"black\"><b> Additional Information: </b>"
+                + response.getBody().getObject().getString("summary") + "</font>"
+                +"</body></html>");
+
+        return (message);
     }
 
 }
+
