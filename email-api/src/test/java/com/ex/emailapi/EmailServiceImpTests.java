@@ -7,7 +7,10 @@ import com.ex.emailapi.services.EmailServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,8 @@ public class EmailServiceImpTests {
     private SubscriptionRepository subscriptionRepository;
     private DailyRecipeTrackerRepository dailyRecipeTrackerRepository;
 
+    final Logger logger = LoggerFactory.getLogger(EmailApiApplication.class);
+
     @BeforeEach
     public void initEachTest(){
         System.out.println("Initializing before test");
@@ -31,7 +36,38 @@ public class EmailServiceImpTests {
         System.out.println("Done init");
     }
 
-    //Just write test for instant email below
+    /**
+     * Test for sendmail- Email id or Recipe id can't be null
+     */
+    @Test
+    public void shouldThrowIllegalStateException() {
+        IllegalStateException e = Assertions.assertThrows(IllegalStateException.class, () -> {
+
+            emailService.sendmail(null,0);
+        });
+
+        logger.info("Message shouldThrowIllegalStateException : " + e.getMessage());
+
+        Assertions.assertEquals("Email id or Recipe id can't be null", e.getMessage(), "Method didn't throw with null parameter");
+    }
+
+    /**
+     * Test for instant email
+     * @throws MessagingException
+     */
+    @Test
+    public void shouldSendMail() throws MessagingException {
+        String message = emailService.sendmail("anju.naduth@gmail.com", 479701);
+        //String message = emailService.sendmail("anju.naduth@gmail.com", 479102);
+
+        Assertions.assertNotNull(message);
+
+        logger.info("Message in shouldSendMail is: "+message);
+
+        Assertions.assertEquals("Email sent successfully", message, "Email sent successfully");
+
+    }
+
 
 
     //Just write test for daily email sender below
@@ -46,21 +82,21 @@ public class EmailServiceImpTests {
             emailService.getNewDailyRecipeForCurrentCustomer(null, null);
         });
 
-        Assertions.assertEquals("Employee id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
         ex = Assertions.assertThrows(IllegalStateException.class, () -> {
 
             emailService.getNewDailyRecipeForCurrentCustomer(null, "apple");
         });
 
-        Assertions.assertEquals("Employee id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
         ex = Assertions.assertThrows(IllegalStateException.class, () -> {
 
             emailService.getNewDailyRecipeForCurrentCustomer("aneeshcm18@gmail.com", null);
         });
 
-        Assertions.assertEquals("Employee id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
     }
 
