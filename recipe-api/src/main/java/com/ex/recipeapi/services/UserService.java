@@ -1,6 +1,7 @@
 package com.ex.recipeapi.services;
 
 import com.ex.recipeapi.controllers.UserController;
+import com.ex.recipeapi.dtos.LoginDTO;
 import com.ex.recipeapi.dtos.LogoutDTO;
 import com.ex.recipeapi.entities.User;
 import com.ex.recipeapi.exceptions.UserNotFoundException;
@@ -21,6 +22,10 @@ public class UserService {
 
     @Autowired
     private UserRepository users;
+
+    public UserService(UserRepository users) {
+        this.users = users;
+    }
 
     public List<User> getAllUsers() {
         return users.findAll();
@@ -43,21 +48,21 @@ public class UserService {
         }
     }
 
-    public boolean login(String email, String userPassword) throws UserNotFoundException, IllegalStateException {
+    public boolean login(LoginDTO loginDTO) throws UserNotFoundException, IllegalStateException {
 
         boolean isSuccess = false;
 
-        if (email == null || userPassword == null) {
+        if (loginDTO.getEmail() == null || loginDTO.getUserPassword() == null) {
             throw new IllegalStateException("Username or password cannot be null when logging in");
         }
 
-        User user = users.findByEmail(email);
+        User user = users.findByEmail(loginDTO.getEmail());
 
         if (user == null) {
             throw new UserNotFoundException("User not found");
         }
 
-        if (user.getUserPassword().equals(userPassword)) {
+        if (user.getUserPassword().equals(loginDTO.getUserPassword())) {
             logger.info("Entered password matches user's password in the database, logging them in...");
             isSuccess = true;
             user.setIsLoggedIn(1);
