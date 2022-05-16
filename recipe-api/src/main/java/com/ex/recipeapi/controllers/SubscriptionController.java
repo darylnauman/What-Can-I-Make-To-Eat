@@ -31,11 +31,6 @@ public class SubscriptionController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello, World!";
-    }
-
     @PostMapping("subscribe/{userId}")
     public String subscribeForDailyEmail(@PathVariable int userId, @RequestBody Subscription s) {
 
