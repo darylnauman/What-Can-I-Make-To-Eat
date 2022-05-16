@@ -25,10 +25,10 @@ public class UserController {
         try {
             logger.info("UserController - /login");
             boolean isSuccess = false;
-            isSuccess = userService.login(loginDTO.getEmail(), loginDTO.getUserPassword());
+            isSuccess = userService.login(loginDTO);
 
             if(isSuccess) {
-                return ResponseEntity.ok().body("User logged in");
+                return ResponseEntity.ok().body("User successfully logged in");
             } else {
                 return ResponseEntity.notFound().build();
             }
