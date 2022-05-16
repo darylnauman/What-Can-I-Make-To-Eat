@@ -54,17 +54,24 @@ public class EmailServiceImpl implements EmailService{
 
     }
 
+    /**
+     *
+     * @param email - email id of the customer
+     * @param recipeId - customer's favorite recipe id
+     * @return
+     * @throws MessagingException
+     */
     @Override
     public String sendmail(String email, int recipeId) throws MessagingException{
         if(email == null || recipeId == 0){
-            throw new IllegalStateException("Email id and message can't be null");
+            throw new IllegalStateException("Email id or Recipe id can't be null");
         }
 
         // Host url
-        String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/479103/information";
+        String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/"+recipeId+"/information";
         //String host = "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/random?tags=dessert&number=1";
+
         String charset = "application/json";
-        // Headers for a request
 
        // String x_rapidapi_host = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com";
        // String x_rapidapi_key = "46c9581dbcmsh496a852afc52dadp18d0c6jsn88d3b880b345";
@@ -85,17 +92,15 @@ public class EmailServiceImpl implements EmailService{
        
         //String message=(response.getBody().getObject().getString("instructions"));
 
-        System.out.println(response.getBody().getObject().getInt("id"));
-        System.out.println(response.getBody().getObject().getString("title"));
+        logger.info("recipe id : "+response.getBody().getObject().getInt("id"));
+        logger.info("recipe title : "+response.getBody().getObject().getString("title"));
 
-        //+"<h1 style=\"text-align: center;\">"+response.getBody().getObject().getString("title")+"</h1><br>"
         String message=("<html><body>"+
                 "Hello,<br><br>"
                 +"Here is your recipe from <em>'What Can I Make to Eat'</em>. <br><br>"
                 +"<h1>"+response.getBody().getObject().getString("title")+"</h1>"
                 +response.getBody().getObject().getString("summary")
                 +"<br><br><br><br><img src=\'"+response.getBody().getObject().getString("image")+"\'/><br><br><br>"
-//                +"<br><br><br><br><img src='https://spoonacular.com/recipeImages/479103-556x370.jpg'/><br><br><br>"
                 +"<h2>Instructions </h2>"+response.getBody().getObject().getString("instructions")+"<br><h2>servings </h2><h3>"+response.getBody().getObject().getInt("servings")+"</h3>"
                 +"<h3>Total Time </h3><h4>"+response.getBody().getObject().getInt("readyInMinutes")+" "+" minutes</h4>"
                 +"<br>For more recipe ideas be sure to visit our website - <a href=\"https://www.google.com\"><em>What Can I Make To Eat</em></a> "
@@ -125,7 +130,9 @@ public class EmailServiceImpl implements EmailService{
 
         Transport.send(msg);
 
-        return (response.getBody().toString());
+        //Commented for testing
+        //return (response.getBody().toString());
+        return "Email sent successfully";
     }
 
     /**
@@ -138,7 +145,7 @@ public class EmailServiceImpl implements EmailService{
     public int getNewDailyRecipeForCurrentCustomer(String emailAddressOfCurrentSubscriber, String preferencesOfCurrentSubscriber) {
         logger.debug("Starting the process to find a random recipe for the subscriber");
         if (emailAddressOfCurrentSubscriber == null || preferencesOfCurrentSubscriber == null) {
-            throw new IllegalStateException("Employee id or preferences can't be null");
+            throw new IllegalStateException("Recipe id or preferences can't be null");
         }
 
         List<DailyRecipeTracker> allRecipesSendToCurrentSubscriberPreviously = dailyRecipeTrackerRepository.findAllByEmail(emailAddressOfCurrentSubscriber);
