@@ -137,7 +137,7 @@ public class EmailServiceImpl implements EmailService{
     public int getNewDailyRecipeForCurrentCustomer(String emailAddressOfCurrentSubscriber, String preferencesOfCurrentSubscriber) {
         logger.debug("Starting the process to find a random recipe for the subscriber");
         if (emailAddressOfCurrentSubscriber == null || preferencesOfCurrentSubscriber == null) {
-            throw new IllegalStateException("Recipe id or preferences can't be null");
+            throw new IllegalStateException("Email or preferences can't be null");
         }
 
         List<DailyRecipeTracker> allRecipesSendToCurrentSubscriberPreviously = dailyRecipeTrackerRepository.findAllByEmail(emailAddressOfCurrentSubscriber);
