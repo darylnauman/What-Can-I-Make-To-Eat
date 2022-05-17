@@ -10,5 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LogoutDTO {
+
+    /**
+     * Data Transfer Object for Logout
+     */
     private String email;
 }

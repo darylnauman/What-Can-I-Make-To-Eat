@@ -17,7 +17,7 @@ public class HelloController {
     @GetMapping("/hello")
     public String greeting() {
         logger.info("Reached /hello endpoint within the Recipe API");
-        return "Good day! From the Recipe API hello controller.";
+        String s = "<html><body><center><h1>Good day! From the Recipe API hello controller.</h1></center></body></html>";
+        return s;
     }
-
 }
