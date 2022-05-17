@@ -1,15 +1,11 @@
 package com.ex.emailapi.services;
 
 import javax.mail.*;
-
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.*;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
 import com.ex.emailapi.EmailApiApplication;
 import com.ex.emailapi.entities.DailyRecipeTracker;
 import com.ex.emailapi.entities.Subscription;
@@ -26,11 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-
 import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
 
 @Configuration
 @EnableScheduling
@@ -200,6 +192,37 @@ public class EmailServiceImpl implements EmailService{
         return finalRecipeToBeSend;
     }
 
+    /**
+     *
+     * @param subscriberToSendEmail This will have details of the subscriber to whom daily email should be sent
+     * @return A string which says email was sent successfully
+     */
+    @Override
+    public String sendDailyEmailToSubscriber(Subscription subscriberToSendEmail) {
+        String emailAddressOfCurrentSubscriber = subscriberToSendEmail.getEmail();
+        String preferencesOfCurrentSubscriber = subscriberToSendEmail.getPreferences();
+        int todaysRecipeToBeSend = 0;
+        if(preferencesOfCurrentSubscriber == null){
+            todaysRecipeToBeSend = getNewDailyRecipeForCurrentCustomer(emailAddressOfCurrentSubscriber, "NO");
+        }else {
+            todaysRecipeToBeSend = getNewDailyRecipeForCurrentCustomer(emailAddressOfCurrentSubscriber, preferencesOfCurrentSubscriber);
+        }
+        System.out.println("Emailing recipe id "+todaysRecipeToBeSend+ "to " +emailAddressOfCurrentSubscriber);
+
+        DailyRecipeTracker todaysRecipe = new DailyRecipeTracker();
+        todaysRecipe.setEmail(emailAddressOfCurrentSubscriber);
+        todaysRecipe.setRecipeId(todaysRecipeToBeSend);
+        logger.debug("Trying to send an email to customer with a new recipe");
+        try {
+            sendmail(emailAddressOfCurrentSubscriber,todaysRecipeToBeSend);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+        dailyRecipeTrackerRepository.save(todaysRecipe);
+        return ("Email Send");
+    }
+
 
     /**
      * This will send emails to all subscribers daily(for testing it i sending emails every 6 minutes) with a unique recipe,
@@ -221,28 +244,9 @@ public class EmailServiceImpl implements EmailService{
 
             //Selecting each individual subscriber for sending email and separately accessing the specific details
             Subscription subscriberToSendEmail = allSubscribedUsers.get(i);
-            String emailAddressOfCurrentSubscriber = subscriberToSendEmail.getEmail();
-            String preferencesOfCurrentSubscriber = subscriberToSendEmail.getPreferences();
-            int todaysRecipeToBeSend = 0;
-            if(preferencesOfCurrentSubscriber == null){
-                todaysRecipeToBeSend = getNewDailyRecipeForCurrentCustomer(emailAddressOfCurrentSubscriber, "NO");
-            }else {
-                todaysRecipeToBeSend = getNewDailyRecipeForCurrentCustomer(emailAddressOfCurrentSubscriber, preferencesOfCurrentSubscriber);
-            }
-            System.out.println("Emailing recipe id "+todaysRecipeToBeSend+ "to " +emailAddressOfCurrentSubscriber);
-
-            DailyRecipeTracker todaysRecipe = new DailyRecipeTracker();
-            todaysRecipe.setEmail(emailAddressOfCurrentSubscriber);
-            todaysRecipe.setRecipeId(todaysRecipeToBeSend);
-            logger.debug("Trying to send an email to customer with a new recipe");
-            try {
-                sendmail(emailAddressOfCurrentSubscriber,todaysRecipeToBeSend);
-
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
+            String statusOfDailyEmailSendToSubscriber = sendDailyEmailToSubscriber(subscriberToSendEmail);
             logger.debug("Updated recipe tracker table with the recipe sent today");
-            dailyRecipeTrackerRepository.save(todaysRecipe);
+
         }
 
 

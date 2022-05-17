@@ -1,6 +1,7 @@
 package com.ex.emailapi;
 
 import com.ex.emailapi.entities.DailyRecipeTracker;
+import com.ex.emailapi.entities.Subscription;
 import com.ex.emailapi.repositories.DailyRecipeTrackerRepository;
 import com.ex.emailapi.repositories.SubscriptionRepository;
 import com.ex.emailapi.services.EmailServiceImpl;
@@ -82,21 +83,21 @@ public class EmailServiceImpTests {
             emailService.getNewDailyRecipeForCurrentCustomer(null, null);
         });
 
-        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Email or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
         ex = Assertions.assertThrows(IllegalStateException.class, () -> {
 
             emailService.getNewDailyRecipeForCurrentCustomer(null, "apple");
         });
 
-        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Email or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
         ex = Assertions.assertThrows(IllegalStateException.class, () -> {
 
             emailService.getNewDailyRecipeForCurrentCustomer("aneeshcm18@gmail.com", null);
         });
 
-        Assertions.assertEquals("Recipe id or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
+        Assertions.assertEquals("Email or preferences can't be null", ex.getMessage(), "Method didn't throw with null values");
 
     }
 
@@ -121,6 +122,29 @@ public class EmailServiceImpTests {
         int returnedRecipeId = emailService.getNewDailyRecipeForCurrentCustomer(email, preferences);
 
         Assertions.assertNotNull(returnedRecipeId,"Recipe received is null");
+    }
+
+    /**
+     * Test to check if daily emails are sent to customer
+     */
+    @Test
+    void shouldReturnSuccessMessageForDailyEmailSend() {
+
+        String expectedResponseOfDailyEmailSend = "Email Send";
+
+        Subscription mockSubscriberToSendEmail =new Subscription();
+        mockSubscriberToSendEmail.setSubscriptionId(0);
+        mockSubscriberToSendEmail.setEmail("aneeshcm18@gmail.com");
+        mockSubscriberToSendEmail.setPreferences("fish");
+
+        DailyRecipeTracker mockTodaysRecipe = new DailyRecipeTracker();
+        mockTodaysRecipe.setEmail("aneeshcm18@gmail.com");
+        mockTodaysRecipe.setRecipeId(479701);
+
+        when(dailyRecipeTrackerRepository.save(mockTodaysRecipe)).thenReturn(mockTodaysRecipe);
+        String responseOfDailyEmailSend = emailService.sendDailyEmailToSubscriber(mockSubscriberToSendEmail);
+
+        Assertions.assertEquals(responseOfDailyEmailSend, expectedResponseOfDailyEmailSend,"Daily email not sent");
     }
 
 }
