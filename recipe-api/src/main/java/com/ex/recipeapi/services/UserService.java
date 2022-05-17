@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service layer related to users
+ */
+
 @Service
 @Transactional
 public class UserService {
@@ -31,7 +35,12 @@ public class UserService {
         return users.findAll();
     }
 
-    public User addUser(User user) {
+    public User addUser(User user) throws IllegalStateException {
+
+        if (user.getEmail() == null || user.getUserPassword() == null) {
+            throw new IllegalStateException("New user must have an email and password - cannot be null");
+        }
+
         return users.save(user);
     }
 
@@ -57,6 +66,7 @@ public class UserService {
         }
 
         User user = users.findByEmail(loginDTO.getEmail());
+        System.out.println(user);
 
         if (user == null) {
             throw new UserNotFoundException("User not found");
