@@ -20,6 +20,12 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    /**
+     * User can login to Recipe API database if he has already signed up
+     * @param loginDTO - login object
+     * @return - result of login attempt (successful or unsuccessful)
+     */
+
     @GetMapping("/login")
     public ResponseEntity login(@RequestBody LoginDTO loginDTO) {
         try {
@@ -38,6 +44,12 @@ public class UserController {
             return ResponseEntity.internalServerError().body("Error logging in user");
         }
     }
+
+    /**
+     * User will logout from Recipe API database if he has already logged in
+     * @param logoutDTO - logout object
+     * @return - result of logout attempt (valid or invalid)
+     */
 
     @GetMapping("/logout")
     public ResponseEntity logout(@RequestBody LogoutDTO logoutDTO) {
@@ -58,6 +70,11 @@ public class UserController {
         }
     }
 
+    /**
+     * this method will show all the users in Recipe API database
+     * @return - list of Users
+     */
+
     @GetMapping("/api/users")
     public ResponseEntity getAllUsers() {
         logger.info("UserController - getAllUsers");
@@ -65,7 +82,13 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/api/users")
+    /**
+     * Anyone can Sign Up for Recipe API to get recipes of their choice
+     * @param user - entity
+     * @return - if sign up is successful or not
+     */
+
+    @PostMapping("/signup")
     public ResponseEntity addUser(@RequestBody User user) {
         try {
             logger.info("UserController - addUser");
@@ -73,9 +96,15 @@ public class UserController {
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Error saving new user");
+            return ResponseEntity.internalServerError().body("Error saving new user, Please try again!");
         }
     }
+
+    /**
+     * this method will remove a user from Recipe API database
+     * @param userId - unique identifier for existing user
+     * @return - if user is successfully deleted or not
+     */
 
     @DeleteMapping("/api/users/{userId}")
     public ResponseEntity deleteUser(@PathVariable Integer userId) {

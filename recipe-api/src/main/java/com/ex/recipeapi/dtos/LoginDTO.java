@@ -10,6 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LoginDTO {
+
+    /**
+     * Data Transfer Object for Login
+     */
     private String email;
     private String userPassword;
 }
