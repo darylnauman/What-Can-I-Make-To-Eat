@@ -21,15 +21,15 @@ import static org.mockito.Mockito.when;
 public class UserServiceTests {
 
     private UserService userService;
-    private UserRepository userRepository;
+    private UserRepository users;
 
     Logger logger = LoggerFactory.getLogger(UserServiceTests.class);
 
     @BeforeEach
     public void initEachTest(){
         logger.info("Initialization before test");
-        userRepository = mock(UserRepository.class);
-        userService = new UserService(userRepository);
+        users = mock(UserRepository.class);
+        userService = new UserService(users);
     }
 
     @Test
@@ -84,17 +84,8 @@ public class UserServiceTests {
         mockUser.setSubscriptionStatus(0);
         mockUser.setIsLoggedIn(0);
 
-        System.out.println(mockUser);
-
-//        userService.addUser(mockUser);
-        userRepository.save(mockUser);
-
-        System.out.println(userService.getAllUsers());
-        System.out.println(userRepository.findAll());
-
-        when(userService.login(loginDTO)).thenReturn(true);
+        when(users.findByEmail(mockUser.getEmail())).thenReturn(mockUser);
         boolean isSuccess = userService.login(loginDTO);
-        logger.info(String.valueOf(isSuccess));
         Assertions.assertTrue(isSuccess, "Login with valid credentials did not return true");
     }
 
