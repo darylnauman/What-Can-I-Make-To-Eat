@@ -35,7 +35,12 @@ public class UserService {
         return users.findAll();
     }
 
-    public User addUser(User user) {
+    public User addUser(User user) throws IllegalStateException {
+
+        if (user.getEmail() == null || user.getUserPassword() == null) {
+            throw new IllegalStateException("New user must have an email and password - cannot be null");
+        }
+
         return users.save(user);
     }
 
