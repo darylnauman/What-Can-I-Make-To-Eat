@@ -31,9 +31,20 @@ public class UserService {
         this.users = users;
     }
 
+    /**
+     * this method will show all the users in Recipe API database
+     * @return - list of Users
+     */
+
     public List<User> getAllUsers() {
         return users.findAll();
     }
+
+    /**
+     * Anyone can Sign Up for Recipe API to get recipes of their choice
+     * @param user - entity
+     * @return - if sign up is successful or not
+     */
 
     public User addUser(User user) throws IllegalStateException {
 
@@ -43,6 +54,12 @@ public class UserService {
 
         return users.save(user);
     }
+
+    /**
+     * this method will remove a user from Recipe API database
+     * @param userId - unique identifier for existing user
+     * @return - if user is successfully deleted or not
+     */
 
     public boolean deleteUser(Integer userId) {
         if (users.existsById(userId)) {
@@ -57,6 +74,12 @@ public class UserService {
         }
     }
 
+    /**
+     * User can login to Recipe API database if he has already signed up
+     * @param loginDTO - login object
+     * @return - result of login attempt (successful or unsuccessful)
+     */
+
     public boolean login(LoginDTO loginDTO) throws UserNotFoundException, IllegalStateException {
 
         boolean isSuccess = false;
@@ -69,7 +92,7 @@ public class UserService {
         System.out.println(user);
 
         if (user == null) {
-            throw new UserNotFoundException("User not found, Please Sign Up first");
+            throw new UserNotFoundException("User not found, please sign up");
         }
 
         if (user.getUserPassword().equals(loginDTO.getUserPassword())) {
@@ -81,6 +104,12 @@ public class UserService {
         }
         return isSuccess;
     }
+
+    /**
+     * User will logout from Recipe API database if he has already logged in
+     * @param logoutDTO - logout object
+     * @return - result of logout attempt (valid or invalid)
+     */
 
     public boolean logout(LogoutDTO logoutDTO) {
         boolean isSuccess = false;

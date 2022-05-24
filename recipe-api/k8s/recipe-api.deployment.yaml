@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: recipe-api-service
+spec:
+  selector:
+    app: recipe-api
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recipe-api
+  labels:
+    app: recipe-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recipe-api
+  template:
+    metadata:
+      labels:
+        app: recipe-api
+    spec:
+      containers:
+        - name: recpie-api
+          imagePullPolicy: Always
+          image: darylnauman/project-two-recipe-api:%TAG%
+          ports:
+            - containerPort: 8000
+          env:
+            - name: EMAIL_API_URL
+              value: http://email-api-service:$(EMAIL_API_SERVICE_SERVICE_PORT_EMAIL)
+#              value: email-api://$(EMAIL_API_SERVICE_SERVICE_HOST):$(EMAIL_API_SERVICE_SERVICE_PORT_EMAIL)

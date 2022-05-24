@@ -3,6 +3,10 @@ package com.ex.recipeapi.entities;
 import lombok.*;
 import javax.persistence.*;
 
+/**
+ * A class to track all the recipes sent to the subscribers so that they won't get repeated recipes
+ */
+
 @Entity
 @Table(name= "DailyRecipeTracker")
 @Getter
