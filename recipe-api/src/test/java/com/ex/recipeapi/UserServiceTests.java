@@ -12,12 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserServiceTests {
 
@@ -117,7 +120,7 @@ public class UserServiceTests {
             userService.login(loginDTO1);
         });
 
-        Assertions.assertEquals("User not found", ex.getMessage(),
+        Assertions.assertEquals("User not found, please sign up", ex.getMessage(),
                 "Method did not throw when trying to login a user with an email that does not exist." );
     }
 
@@ -221,5 +224,23 @@ public class UserServiceTests {
         Assertions.assertEquals("No user with this user id found to delete", ex.getMessage(),
                 "Method did not throw when trying to delete a user with id that does not exist." );
     }
+
+
+    @Test
+    public void shouldDeleteUser() {
+
+        User mockUser = new User();
+        mockUser.setUserId(10);
+        mockUser.setEmail("test@gmail.com");
+        mockUser.setUserPassword("password");
+        mockUser.setSubscriptionStatus(0);
+        mockUser.setIsLoggedIn(1);
+
+        when(users.existsById(mockUser.getUserId())).thenReturn(true);
+        when(userService.deleteUser(10)).thenReturn(true);
+        boolean isSuccess = userService.deleteUser(10);
+        Assertions.assertFalse(isSuccess, "User Deleted");
+    }
+
 
 }

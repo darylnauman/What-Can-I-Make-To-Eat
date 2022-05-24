@@ -109,7 +109,7 @@ public class EmailServiceImpl implements EmailService{
 
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("AneeshRevatureProject1@gmail.com", "RevatureBank2022");
+                return new PasswordAuthentication("AneeshRevatureProject1@gmail.com", "19may2022");
             }
         });
         Message msg = new MimeMessage(session);
@@ -229,7 +229,7 @@ public class EmailServiceImpl implements EmailService{
      * which depends on subscribers preference if he has chosen one or else a random recipe
      */
     @Override
-    @Scheduled(fixedRate = 360000)//This will send daily emails after every six minutes
+    @Scheduled(fixedRate = 1000000)//This will send daily emails after every six minutes
     public void dailyEmailSender() {
         logger.debug("Daily email sender started");
 

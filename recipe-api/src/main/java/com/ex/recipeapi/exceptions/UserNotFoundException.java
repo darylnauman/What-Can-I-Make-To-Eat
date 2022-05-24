@@ -1,5 +1,9 @@
 package com.ex.recipeapi.exceptions;
 
+/**
+ * System will generate this exception if a user is not found in the Recipe API database
+ */
+
 public class UserNotFoundException extends RuntimeException {
 
     public UserNotFoundException() {
